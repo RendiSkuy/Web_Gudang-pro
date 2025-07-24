@@ -1,0 +1,434 @@
+:root {
+  /* Palet Warna Dark-Teal */
+  --primary-color: #14b8a6;
+  --background-color: #111827;
+  --card-background: #1f2937;
+  --input-background: #374151;
+  --text-light: #d1d5db;
+  --text-dark: #f9fafb;
+  --border-color: #4b5563;
+  --success-color: #22c55e;
+  --danger-color: #ef4444;
+
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: dark;
+  color: var(--text-light);
+  background-color: var(--background-color);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  min-width: 320px;
+  min-height: 100vh;
+  padding: 0;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Header Responsive */
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+h1 {
+  font-size: clamp(1.8rem, 4vw, 2.2rem);
+  line-height: 1.1;
+  color: var(--primary-color);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+header p {
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  margin: 0;
+  color: var(--text-light);
+}
+
+.card {
+  background-color: var(--card-background);
+  border-radius: 12px;
+  padding: 1.5em;
+  margin-bottom: 2em;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+h2 {
+  margin-top: 0;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
+}
+
+/* Form Styling dengan Grid yang Lebih Fleksibel */
+form {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+}
+
+/* Default untuk layar besar (Desktop) */
+@media (min-width: 1024px) {
+  form {
+    grid-template-columns: 2fr 1.5fr 1fr 1fr 1.5fr auto;
+    align-items: center;
+  }
+  
+  .form-buttons {
+    grid-column: 6 / 7;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  form {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+  }
+  
+  form input[name="nama_barang"] {
+    grid-column: 1 / -1;
+  }
+  
+  .form-buttons {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+/* Mobile (sampai 767px) */
+@media (max-width: 767px) {
+  .app-container {
+    padding: 0.5rem;
+  }
+
+  .card {
+    padding: 1em;
+    margin-bottom: 1.5em;
+  }
+
+  form {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .form-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  /* Header card dengan logout button */
+  .card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .card-header h2 {
+    margin-bottom: 0;
+    border-bottom: none;
+    text-align: center;
+  }
+  
+  .logout-button-container {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+/* Extra Small Mobile (sampai 480px) */
+@media (max-width: 480px) {
+  .app-container {
+    padding: 0.25rem;
+  }
+  
+  .card {
+    padding: 0.75em;
+    border-radius: 8px;
+  }
+  
+  h1 {
+    font-size: 1.6rem;
+  }
+  
+  .form-buttons {
+    flex-direction: column;
+  }
+}
+
+/* Tabel Responsive */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+  font-size: 0.9rem;
+}
+
+/* Mobile table adjustments */
+@media (max-width: 767px) {
+  table {
+    min-width: 500px;
+    font-size: 0.8rem;
+  }
+  
+  th, td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.8rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 60px;
+  }
+  
+  .action-buttons button {
+    padding: 0.3em 0.5em;
+    font-size: 0.75em;
+    width: 100%;
+  }
+}
+
+/* Input dan Select Styling */
+input, select {
+  padding: 0.8rem;
+  background-color: var(--input-background);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-dark);
+  font-size: 1em;
+  font-family: inherit;
+  height: 48px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  input, select {
+    padding: 0.6rem;
+    height: 44px;
+    font-size: 16px; /* Mencegah zoom pada iOS */
+  }
+}
+
+input:focus, select:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.25);
+}
+
+/* Button Styling */
+button {
+  border-radius: 8px;
+  border: none;
+  padding: 0.8em 1.2em;
+  font-size: 1em;
+  font-weight: bold;
+  font-family: inherit;
+  background-color: var(--primary-color);
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: background-color 0.25s;
+  height: 48px;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  button {
+    padding: 0.6em 1em;
+    height: 44px;
+    font-size: 0.9em;
+  }
+}
+
+button:hover {
+  background-color: #0d9488;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+/* Table Styling */
+th, td {
+  padding: 1rem 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+  vertical-align: middle;
+}
+
+th {
+  color: var(--text-light);
+  font-weight: 600;
+  background-color: rgba(75, 85, 99, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-buttons button {
+  padding: 0.4em 0.8em;
+  font-size: 0.9em;
+  color: white;
+  height: auto;
+  min-width: 60px;
+}
+
+.edit-button {
+  background-color: #3b82f6;
+}
+.edit-button:hover {
+  background-color: #2563eb;
+}
+
+.delete-button {
+  background-color: #ef4444;
+}
+.delete-button:hover {
+  background-color: #b91c1c;
+}
+
+.cancel-button {
+  background-color: #6b7280;
+}
+.cancel-button:hover {
+  background-color: #4b5563;
+}
+
+/* Auth Card Styling */
+.auth-card {
+  max-width: 420px;
+  margin: 4rem auto;
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .auth-card {
+    margin: 2rem auto;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    margin: 1rem auto;
+  }
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  text-align: left;
+}
+
+.auth-card h2 {
+  border-bottom: none;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* Error Message Styling */
+.error-message {
+  color: var(--danger-color);
+  margin-top: 1rem;
+  text-align: center;
+  padding: 0.5rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+/* Loading State */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: 1rem; }
+.mb-1 { margin-bottom: 1rem; }
+.p-1 { padding: 1rem; }
+
+/* Smooth Transitions */
+* {
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Focus Improvements for Accessibility */
+button:focus,
+input:focus,
+select:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .auth-card,
+  .form-buttons,
+  .action-buttons {
+    display: none;
+  }
+  
+  .card {
+    border: 1px solid #000;
+    box-shadow: none;
+  }
+  
+  table {
+    min-width: auto;
+  }
+}
