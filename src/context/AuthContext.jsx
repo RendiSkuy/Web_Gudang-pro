@@ -1,20 +1,23 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useContext } from 'react';
+import { login as loginService } from '../api/apiService';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-    const [token, setToken] = useState(() => localStorage.getItem('token'));
+    const [token, setToken] = useState(localStorage.getItem('token'));
 
-    useEffect(() => {
-        if (token) {
-            localStorage.setItem('token', token);
-        } else {
-            localStorage.removeItem('token');
-        }
-    }, [token]);
+    const login = async (username, password) => {
+        const { data } = await loginService({ username, password });
+        localStorage.setItem('token', data.token);
+        setToken(data.token);
+    };
 
-    const login = (newToken) => setToken(newToken);
-    const logout = () => setToken(null);
+    const logout = () => {
+        localStorage.removeItem('token');
+        setToken(null);
+    };
 
     const value = { token, login, logout };
 
@@ -24,5 +27,3 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
-
-export const useAuth = () => useContext(AuthContext);

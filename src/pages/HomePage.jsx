@@ -1,291 +1,207 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { fetchBarang, createBarang, updateBarang, deleteBarang } from '../api/barangService';
+import { useState, useEffect } from 'react';
+import { getBarang, createBarang, updateBarang } from '../api/apiService';
+import './HomePage.css';
 
-const kategoriOptions = ['Elektronik', 'ATK', 'Perkakas', 'Pakaian', 'Lainnya'];
-const satuanOptions = ['Unit', 'Botol', 'Pcs', 'Rim', 'Set', 'Lainnya'];
+const HomePage = () => {
+    const [barangList, setBarangList] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingBarang, setEditingBarang] = useState(null);
+    const [statusFilter, setStatusFilter] = useState('active');
+    const [searchTerm, setSearchTerm] = useState('');
 
-const getTodayDateString = () => {
-  const today = new Date();
-  return today.toISOString().split('T')[0];
-};
-
-function HomePage() {
-  const { logout } = useAuth();
-  const [barangList, setBarangList] = useState([]);
-  const [formData, setFormData] = useState({ 
-    nama_barang: '', 
-    kategori: kategoriOptions[0],
-    jumlah_stok: '', 
-    satuan: satuanOptions[0],
-    tanggal_masuk: getTodayDateString(),
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [editingId, setEditingId] = useState(null);
-
-  const getBarangList = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await fetchBarang();
-      setBarangList(data);
-      setError(null);
-    } catch (err) {
-      setError(err.message);
-      if (String(err).includes('401') || String(err).includes('403')) {
-        logout();
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [logout]);
-
-  useEffect(() => {
-    getBarangList();
-  }, [getBarangList]);
-
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleEdit = (barang) => {
-    setEditingId(barang._id);
-    setFormData({
-      nama_barang: barang.nama_barang,
-      kategori: barang.kategori,
-      jumlah_stok: barang.jumlah_stok,
-      satuan: barang.satuan,
-      tanggal_masuk: new Date(barang.tanggal_masuk).toISOString().split('T')[0],
-    });
-    
-    // Scroll to form on mobile
-    if (window.innerWidth <= 767) {
-      document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleDeleteClick = async (id) => {
-    if (window.confirm("Anda yakin ingin menghapus barang ini?")) {
-      try {
-        await deleteBarang(id);
-        getBarangList();
-      } catch (err) {
-        setError(err.message);
-      }
-    }
-  };
-  
-  const cancelEdit = () => {
-    setEditingId(null);
-    setFormData({ 
-      nama_barang: '', 
-      kategori: kategoriOptions[0], 
-      jumlah_stok: '', 
-      satuan: satuanOptions[0],
-      tanggal_masuk: getTodayDateString(),
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const isEditing = editingId !== null;
-    const dataToSubmit = {
-        ...formData,
-        jumlah_stok: Number(formData.jumlah_stok)
+    const fetchBarang = async (status, search) => {
+        try {
+            setLoading(true);
+            const { data } = await getBarang(status, search);
+            setBarangList(data);
+            setError('');
+        } catch (err) {
+            setError('Gagal memuat data.');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    try {
-      if (isEditing) {
-        await updateBarang(editingId, dataToSubmit);
-      } else {
-        await createBarang(dataToSubmit);
-      }
-      cancelEdit();
-      getBarangList();
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            fetchBarang(statusFilter, searchTerm);
+        }, 300);
+        return () => clearTimeout(delayDebounceFn);
+    }, [statusFilter, searchTerm]);
 
-  // Check if we're on mobile for responsive behavior
-  const isMobile = window.innerWidth <= 767;
+    const handleRowClick = (barang) => {
+        setEditingBarang(barang);
+        setIsModalOpen(true);
+    };
 
-  return (
-    <div className="app-container">
-      <header>
-          <h1>Gudang Pro</h1>
-          <p>Manajemen Inventaris Berbasis Web</p>
-      </header>
-      <main>
-        <div className="card">
-          <div className={isMobile ? "card-header" : ""} style={{
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            ...(isMobile && { flexDirection: 'column', alignItems: 'stretch' })
-          }}>
-            <h2>{editingId ? 'Edit Barang' : 'Tambah Barang Baru'}</h2>
-            <div className={isMobile ? "logout-button-container" : ""}>
-              <button onClick={logout} className="delete-button">Logout</button>
-            </div>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <input 
-              type="text" 
-              name="nama_barang" 
-              value={formData.nama_barang} 
-              onChange={handleInputChange} 
-              placeholder="Nama Barang" 
-              required 
-            />
-            <select 
-              name="kategori" 
-              value={formData.kategori} 
-              onChange={handleInputChange} 
-              required
-            >
-              {kategoriOptions.map(option => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-            <input 
-              type="number" 
-              name="jumlah_stok" 
-              value={formData.jumlah_stok} 
-              onChange={handleInputChange} 
-              placeholder="Jumlah Stok" 
-              required 
-            />
-            <select 
-              name="satuan" 
-              value={formData.satuan} 
-              onChange={handleInputChange} 
-              required
-            >
-              {satuanOptions.map(option => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-            <input 
-              type="date" 
-              name="tanggal_masuk" 
-              value={formData.tanggal_masuk} 
-              onChange={handleInputChange} 
-              required 
-            />
-            <div className="form-buttons">
-              <button type="submit">
-                {editingId ? 'Update' : 'Simpan'}
-              </button>
-              {editingId && (
-                <button 
-                  type="button" 
-                  onClick={cancelEdit} 
-                  className="cancel-button"
-                >
-                  Batal
-                </button>
-              )}
-            </div>
-          </form>
-          {error && (
-            <div className="error-message">
-              Error: {error}
-            </div>
-          )}
-        </div>
+    const handleOpenAddModal = () => {
+        setEditingBarang(null);
+        setIsModalOpen(true);
+    };
 
-        <div className="card">
-          <h2>Daftar Inventaris</h2>
-          {isLoading ? (
-            <div className="loading">Loading...</div>
-          ) : barangList.length === 0 ? (
-            <div className="text-center" style={{ padding: '2rem', color: 'var(--text-light)' }}>
-              Belum ada data inventaris
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setEditingBarang(null);
+    };
+
+    const handleFormSubmit = async (formData) => {
+        try {
+            if (editingBarang) {
+                await updateBarang(editingBarang._id, formData);
+            } else {
+                await createBarang(formData);
+            }
+            fetchBarang(statusFilter, searchTerm);
+            handleCloseModal();
+        } catch (err) {
+            alert("Gagal menyimpan data!");
+        }
+    };
+
+    if (loading) return <div>Memuat data barang...</div>;
+    if (error) return <div className="error-message">{error}</div>;
+
+    return (
+        <div>
+            <div className="page-header">
+                <h1>Daftar Barang</h1>
+                <button className="btn-add" onClick={handleOpenAddModal}>+ Tambah Barang</button>
             </div>
-          ) : (
+
+            <div className="filter-container">
+                <input
+                    type="text"
+                    placeholder="Cari nama barang..."
+                    className="search-input"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <div className="radio-filters">
+                    <span>Tampilkan:</span>
+                    <label>
+                        <input type="radio" name="status" value="active" checked={statusFilter === 'active'} onChange={(e) => setStatusFilter(e.target.value)} />
+                        Aktif
+                    </label>
+                    <label>
+                        <input type="radio" name="status" value="inactive" checked={statusFilter === 'inactive'} onChange={(e) => setStatusFilter(e.target.value)} />
+                        Tidak Aktif
+                    </label>
+                    <label>
+                        <input type="radio" name="status" value="all" checked={statusFilter === 'all'} onChange={(e) => setStatusFilter(e.target.value)} />
+                        Semua
+                    </label>
+                </div>
+            </div>
+
             <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Nama Barang</th>
-                    <th>Kategori</th>
-                    <th>Stok</th>
-                    <th>Tanggal Masuk</th>
-                    <th>Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {barangList.map((item) => (
-                    <tr key={item._id}>
-                      <td>
-                        <div style={{ 
-                          fontWeight: '600', 
-                          color: 'var(--text-dark)',
-                          wordBreak: 'break-word'
-                        }}>
-                          {item.nama_barang}
-                        </div>
-                      </td>
-                      <td>
-                        <span style={{ 
-                          background: 'var(--primary-color)', 
-                          color: 'white', 
-                          padding: '0.25rem 0.5rem', 
-                          borderRadius: '4px', 
-                          fontSize: '0.8rem',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          {item.kategori}
-                        </span>
-                      </td>
-                      <td>
-                        <strong style={{ color: 'var(--success-color)' }}>
-                          {item.jumlah_stok}
-                        </strong>
-                        <span style={{ 
-                          marginLeft: '0.25rem', 
-                          color: 'var(--text-light)',
-                          fontSize: '0.9rem'
-                        }}>
-                          {item.satuan}
-                        </span>
-                      </td>
-                      <td style={{ whiteSpace: 'nowrap' }}>
-                        {new Date(item.tanggal_masuk).toLocaleDateString('id-ID', {
-                          day: 'numeric', 
-                          month: 'short', 
-                          year: 'numeric'
-                        })}
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          <button 
-                            onClick={() => handleEdit(item)} 
-                            className="edit-button"
-                            title="Edit Barang"
-                          >
-                            Edit
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteClick(item._id)} 
-                            className="delete-button"
-                            title="Hapus Barang"
-                          >
-                            Hapus
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama Barang</th>
+                            <th>Kategori</th>
+                            <th>Stok</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {barangList.length > 0 ? barangList.map(barang => (
+                            // --- PASTIKAN BARIS INI BENAR ---
+                            <tr key={barang._id} onClick={() => handleRowClick(barang)} className="clickable-row">
+                                <td data-label="Nama Barang">{barang.nama_barang}</td>
+                                <td data-label="Kategori">{barang.kategori}</td>
+                                <td data-label="Stok">{`${barang.jumlah_stok} ${barang.satuan}`}</td>
+                                <td data-label="Status">
+                                    <span className={`status ${barang.isActive ? 'status-active' : 'status-inactive'}`}>
+                                        {barang.isActive ? 'Aktif' : 'Tidak Aktif'}
+                                    </span>
+                                </td>
+                            </tr>
+                        )) : (
+                            <tr>
+                                <td colSpan="4" style={{ textAlign: 'center' }}>Tidak ada data.</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
-          )}
+
+            {isModalOpen && (
+                <BarangFormModal
+                    barang={editingBarang}
+                    onSubmit={handleFormSubmit}
+                    onClose={handleCloseModal}
+                />
+            )}
         </div>
-      </main>
-    </div>
-  );
-}
+    );
+};
+
+// Komponen Form Modal
+const BarangFormModal = ({ barang, onSubmit, onClose }) => {
+    const kategoriOptions = ['Elektronik', 'ATK', 'Pakaian', 'Perkakas', 'Lainnya'];
+    const satuanOptions = ['Pcs', 'Unit', 'Botol', 'Box', 'Lusin'];
+    const [formData, setFormData] = useState({
+        nama_barang: barang?.nama_barang || '',
+        kategori: barang?.kategori || 'Lainnya',
+        jumlah_stok: barang?.jumlah_stok || 0,
+        satuan: barang?.satuan || 'Pcs',
+        isActive: barang?.isActive ?? true,
+    });
+
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onSubmit(formData);
+    };
+
+    return (
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <h2>{barang ? 'Edit Barang' : 'Tambah Barang Baru'}</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>Nama Barang</label>
+                        <input type="text" name="nama_barang" value={formData.nama_barang} onChange={handleChange} required />
+                    </div>
+                    <div className="form-group">
+                        <label>Kategori</label>
+                        <select name="kategori" value={formData.kategori} onChange={handleChange} required>
+                            {kategoriOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label>Jumlah Stok</label>
+                        <input type="number" name="jumlah_stok" value={formData.jumlah_stok} onChange={handleChange} required />
+                    </div>
+                    <div className="form-group">
+                        <label>Satuan</label>
+                        <select name="satuan" value={formData.satuan} onChange={handleChange} required>
+                            {satuanOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        </select>
+                    </div>
+                    {barang && (
+                        <div className="form-group-checkbox">
+                            <input type="checkbox" id="isActive" name="isActive" checked={formData.isActive} onChange={handleChange} />
+                            <label htmlFor="isActive">Barang Aktif</label>
+                        </div>
+                    )}
+                    <div className="modal-actions">
+                        <button type="button" className="btn-cancel" onClick={onClose}>Batal</button>
+                        <button type="submit" className="btn-save">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
 
 export default HomePage;

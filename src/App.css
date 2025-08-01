@@ -1,5 +1,4 @@
 :root {
-  /* Palet Warna Dark-Teal */
   --primary-color: #14b8a6;
   --background-color: #111827;
   --card-background: #1f2937;
@@ -7,7 +6,6 @@
   --text-light: #d1d5db;
   --text-dark: #f9fafb;
   --border-color: #4b5563;
-  --success-color: #22c55e;
   --danger-color: #ef4444;
 
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -25,139 +23,16 @@
 
 body {
   margin: 0;
-  display: flex;
-  justify-content: center;
-  min-width: 320px;
-  min-height: 100vh;
 }
 
-#root {
-  width: 100%;
+.container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
-}
-
-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-h1 {
-  font-size: 2.5em;
-  line-height: 1.1;
-  color: var(--primary-color);
-  font-weight: 700;
-}
-
-.card {
-  background-color: var(--card-background);
-  border-radius: 12px;
-  padding: 2em;
-  margin-bottom: 2em;
-  border: 1px solid var(--border-color);
-}
-
-h2 {
-  margin-top: 0;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.75rem;
-  margin-bottom: 1.5rem;
-  color: var(--text-dark);
-  font-weight: 600;
-}
-
-form {
-  display: grid;
-  grid-template-columns: 3fr 2fr 1fr 1fr auto;
-  gap: 1rem;
-  align-items: center;
-}
-
-/* --- PERBAIKAN DI SINI --- */
-input, select { /* Ditambahkan 'select' di sini */
-  padding: 0.8rem;
-  background-color: var(--input-background);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  color: var(--text-dark);
-  font-size: 1em;
-  font-family: inherit; /* Menyamakan font */
-  height: 48px; /* Menyamakan tinggi */
-  box-sizing: border-box;
-}
-
-input:focus, select:focus {
-  border-color: var(--primary-color);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.25);
-}
-/* --- AKHIR PERBAIKAN --- */
-
-
-button {
-  border-radius: 8px;
-  border: none;
-  padding: 0.8em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: var(--primary-color);
-  color: var(--text-dark);
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.25s;
-  height: 48px; /* Menyamakan tinggi */
-}
-button:hover {
-  background-color: #0d9488;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-th, td {
   padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
-  text-align: left;
-}
-th {
-  color: var(--text-light);
-  font-weight: 600;
 }
 
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-.action-buttons button {
-  padding: 0.4em 0.8em;
-  font-size: 0.9em;
-  color: white;
-}
-
-.edit-button {
-  background-color: #3b82f6;
-}
-.edit-button:hover {
-  background-color: #2563eb;
-}
-
-.delete-button {
-  background-color: #ef4444;
-}
-.delete-button:hover {
-  background-color: #b91c1c;
-}
-
-.form-buttons {
-  grid-column: 5 / 6;
-}
-.cancel-button {
-  background-color: #6b7280;
-}
-.cancel-button:hover {
-  background-color: #4b5563;
+@media (min-width: 768px) {
+  .container {
+    padding: 2rem;
+  }
 }

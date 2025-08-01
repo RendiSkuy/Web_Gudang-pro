@@ -2,34 +2,21 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
-
-// Komponen untuk melindungi halaman yang memerlukan login
-function ProtectedRoute({ children }) {
-    const { token } = useAuth();
-    return token ? children : <Navigate to="/login" replace />;
-}
-
-// Komponen untuk halaman publik (login)
-function PublicRoute({ children }) {
-    const { token } = useAuth();
-    return !token ? children : <Navigate to="/" replace />;
-}
+import Navbar from './components/Navbar';
 
 function App() {
+    const { token } = useAuth();
+
     return (
-        <Routes>
-            <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-            <Route 
-                path="/" 
-                element={
-                    <ProtectedRoute>
-                        <HomePage />
-                    </ProtectedRoute>
-                } 
-            />
-            {/* Jika URL tidak cocok, arahkan ke halaman utama */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <>
+            {token && <Navbar />}
+            <main className="container">
+                <Routes>
+                    <Route path="/login" element={!token ? <LoginPage /> : <Navigate to="/" />} />
+                    <Route path="/" element={token ? <HomePage /> : <Navigate to="/login" />} />
+                </Routes>
+            </main>
+        </>
     );
 }
 
